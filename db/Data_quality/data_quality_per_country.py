@@ -10,6 +10,7 @@ fichier2 = "../csv/tracking_ecom_events.csv"
 def load_file(f):
     try:
         df_load = pd.read_csv(f, sep=",")
+        df_load['date_day'] = pd.to_datetime(df_load['date_day']).dt.strftime('%d/%m/%Y')
         if (df_load.empty):
             print("le fichier est vide")
             return None
@@ -34,10 +35,6 @@ def load_file_track(f):
 ## On réfléchit en terme de lignes
 ## créer un dictionnaire par soucis de vitesse
 
-
-from collections import defaultdict
-from datetime import datetime
-import pandas as pd
 
 def completeness_per_country(df):
     # Dictionnaire pour suivre les valeurs par (country, year, month)
@@ -119,9 +116,7 @@ def check_value(value):
     if pd.isnull(value): 
         return unique_dates
     try:
-        value = str(value)
-        date = datetime.strptime(value, "%d/%m/%Y")
-        unique_dates.add(date.strftime("%d/%m/%Y"))
+        unique_dates.add(value.strftime("%d/%m/%Y"))
     except ValueError:
         pass 
     return unique_dates
@@ -193,6 +188,7 @@ def integrity_per_country(f1,f2):
     
 def result():
     df = load_file(fichier)
+    print("resultat")
     completeness_per_country_r = completeness_per_country(df)
     uniqueness_per_country_r = uniqueness_per_country(df)
     timeliness_per_country_r = timeliness_per_country(df)
@@ -220,7 +216,9 @@ def result():
             "description": "Taux d'unicité des données"
         })
     # Ajouter les résultats de timeliness
+    print(timeliness_per_country_r)
     for country, values in timeliness_per_country_r.items():
+        print("valeurs ",values)
         results_data.append({
             "nom_de_la_table": "reporting",
             "result_type": "timeliness",
@@ -228,7 +226,7 @@ def result():
             "percentage": values["timeliness_percentage"],
             "month": country[1],
             "year": country[2],
-            "description": "Taux de ponctualité des données"
+            "description": "Taux d'actualité des données"
         })
 
     results_df = pd.DataFrame(results_data)
@@ -236,8 +234,8 @@ def result():
 
         # Exporter vers un fichier Excel
     df_sorted.to_excel("resultats_par_pays.xlsx", index=False)
-
     print("Fichier Excel créé : resultats_par_pays.xlsx")
+
 def menu():
     df = load_file(fichier)
     switch = {

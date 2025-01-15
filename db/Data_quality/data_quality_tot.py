@@ -7,7 +7,7 @@ fichier2 = '../csv/tracking_ecom_events.csv'
 
 ## chargement de la db
 def load_file(f):
-    try: 
+    try:    
         df_load = pd.read_csv(f, sep=',')
         if (df_load.empty):
             print("le fichier est vide\n")
